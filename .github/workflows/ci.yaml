@@ -1,29 +1,30 @@
 name: CI PipeLine
 
 on:
-  push:
+- push:
     branches: [ "main" ]
-  pull_request:
+- pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15-alpine
         env:
           POSTGRES_DB: MINIPROJECT
-          POSTGRES_USER: hyfuser
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d MINIPROJECT"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,5 +40,5 @@ jobs:
         run: mvn clean verify
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/MINIPROJECT
-          SPRING_DATASOURCE_USERNAME: hyfuser
+          SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
