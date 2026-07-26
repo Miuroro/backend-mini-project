@@ -1,3 +1,20 @@
 spring:
   application:
     name: miniproject
+
+  profiles:
+    active: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MINIPROJECT
+    username: hyfuser
+    password: hyfpassword
+
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      platform: postgresql
+
+server:
+  port: '8081'
