@@ -42,3 +42,6 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/MINIPROJECT
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          CLOUDFLARE_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          CLOUDFLARE_R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          CLOUDFLARE_R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
