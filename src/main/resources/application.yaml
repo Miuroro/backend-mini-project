@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/MINIPROJECT
     username: hyfuser
-    password: hyfpassword
+    password: ${DB_PASSWORD}
 
   session:
     store-type: jdbc
