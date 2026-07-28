@@ -6,3 +6,6 @@ spring:
     password:
   session:
     store-type: none
+  sql:
+    init:
+      mode: never
