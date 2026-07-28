@@ -11,10 +11,7 @@ spring:
     password: ${DB_PASSWORD}
 
   session:
-    store-type: jdbc
-    jdbc:
-      initialize-schema: always
-      platform: postgresql
-
+    store-type: none
+    
 server:
   port: '8081'
