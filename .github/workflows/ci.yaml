@@ -10,6 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: MINIPROJECT
+          POSTGRES_USER: hyfuser
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || 'default_test_password' }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d MINIPROJECT"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,8 +37,11 @@ jobs:
           cache: 'maven'
 
       - name: Build and test with Maven
-        run: mvn clean verify -Dspring.profiles.active=test
+        run: mvn clean verify
         env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/MINIPROJECT
+          SPRING_DATASOURCE_USERNAME: hyfuser
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD || 'default_test_password' }}
           CLOUDFLARE_R2_ENDPOINT: ${{ secrets.CLOUDFLARE_R2_ENDPOINT || 'dummy_endpoint' }}
           CLOUDFLARE_R2_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY || 'dummy_key' }}
           CLOUDFLARE_R2_SECRET_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_KEY || 'dummy_secret' }}
