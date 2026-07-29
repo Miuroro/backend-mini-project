@@ -31,4 +31,13 @@ public class R2StorageService {
                 .build(), RequestBody.fromBytes(file.getBytes()));
         return fileName;
     }
+
+    public void deleteFile(String fileKey) {
+        if (fileKey != null && !fileKey.isBlank()) {
+            s3Client.deleteObject(builder -> builder
+                    .bucket(bucketName)
+                    .key(fileKey)
+                    .build());
+        }
+    }
 }
