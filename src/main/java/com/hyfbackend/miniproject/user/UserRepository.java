@@ -35,4 +35,11 @@ public class UserRepository {
                 .param("id", userId)
                 .update();
     }
+
+    public void clearAvatar(String userId) {
+        jdbcClient
+                .sql("UPDATE users SET avatar_url = NULL WHERE id = :id")
+                .param("id", userId)
+                .update();
+    }
 }
