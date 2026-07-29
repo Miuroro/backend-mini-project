@@ -30,7 +30,6 @@ public class R2Config {
         return S3Client.builder()
                 .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                // Cloudflare R2 expects region "auto" or "us-east-1"
                 .region(Region.US_EAST_1)
                 .build();
     }
