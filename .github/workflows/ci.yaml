@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_DB: MINIPROJECT
           POSTGRES_USER: hyfuser
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || 'default_test_password' }}
         ports:
           - 5432:5432
         options: >-
@@ -41,8 +41,8 @@ jobs:
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/MINIPROJECT
           SPRING_DATASOURCE_USERNAME: hyfuser
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          CLOUDFLARE_R2_ENDPOINT: ${{ secrets.CLOUDFLARE_R2_ENDPOINT }}
-          CLOUDFLARE_R2_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY }}
-          CLOUDFLARE_R2_SECRET_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_KEY }}
-          CLOUDFLARE_R2_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_BUCKET_NAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD || 'default_test_password' }}
+          CLOUDFLARE_R2_ENDPOINT: ${{ secrets.CLOUDFLARE_R2_ENDPOINT || 'dummy_endpoint' }}
+          CLOUDFLARE_R2_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY || 'dummy_key' }}
+          CLOUDFLARE_R2_SECRET_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_KEY || 'dummy_secret' }}
+          CLOUDFLARE_R2_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_BUCKET_NAME || 'dummy_bucket' }}
