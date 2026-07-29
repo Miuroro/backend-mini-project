@@ -15,8 +15,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_DB: MINIPROJECT
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_USER: hyfuser
+          POSTGRES_PASSWORD: ${DB_PASSWORD}
         ports:
           - 5432:5432
         options: >-
