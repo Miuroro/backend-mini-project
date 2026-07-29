@@ -1,5 +1,6 @@
 package com.hyfbackend.miniproject.images;
 
+import com.hyfbackend.miniproject.service.R2StorageService;
 import com.hyfbackend.miniproject.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,6 +25,7 @@ public class ImageController {
 
     private final ImageService imageService;
     private final com.hyfbackend.miniproject.user.UserRepository userRepository;
+    private final R2StorageService r2StorageService;
 
     @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,5 +77,29 @@ public class ImageController {
 
         imageService.deleteImage(id, user.getId());
         return ResponseEntity.ok(Map.of("message", "Image deleted successfully"));
+    }
+
+    @GetMapping("/files/{fileKey}")
+    public ResponseEntity<byte[]> getPrivateImage(
+            @PathVariable String fileKey,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        try {
+            ResponseBytes<GetObjectResponse> objectBytes = r2StorageService.getFile(fileKey);
+            MediaType contentType = MediaType.IMAGE_JPEG; // fallback
+            String sdkContentType = objectBytes.response().contentType();
+            if (sdkContentType != null) {
+                contentType = MediaType.parseMediaType(sdkContentType);
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(contentType)
+                    .body(objectBytes.asByteArray());
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found in storage");
+        }
     }
 }
