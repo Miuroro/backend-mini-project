@@ -19,16 +19,22 @@ public class ImageService {
 
     private final R2StorageService r2StorageService;
     private final ImageRepository imageRepository;
+    private final ImageTaggingService imageTaggingService;
 
     public UserImage uploadImage(MultipartFile file, String userId, Map<String, Object> tags) throws IOException {
         String fileKey = r2StorageService.uploadFile(file);
+
+        // Automatically trigger LLM tagging if no manual tags were provided
+        Map<String, Object> finalTags = (tags == null || tags.isEmpty())
+                ? imageTaggingService.generateTags(file)
+                : tags;
 
         UserImage userImage = new UserImage(
                 UUID.randomUUID().toString(),
                 userId,
                 fileKey,
                 LocalDateTime.now(),
-                tags
+                finalTags
         );
 
         imageRepository.save(userImage);
@@ -54,5 +60,14 @@ public class ImageService {
         }
 
         imageRepository.delete(imageId);
+    }
+
+    // search images by a keyword with pagination
+    public List<UserImage> searchImages(String keyword, int page, int size) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        int offset = page * size;
+        return imageRepository.searchByKeyword(keyword.trim(), size, offset);
     }
 }

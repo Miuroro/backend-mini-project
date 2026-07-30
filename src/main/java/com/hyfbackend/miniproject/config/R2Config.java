@@ -33,4 +33,15 @@ public class R2Config {
                 .region(Region.US_EAST_1) // <-- expected for cloudflare 
                 .build();
     }
+
+    // Presigner URLs for private R2 bucket access
+    @Bean
+    public software.amazon.awssdk.services.s3.presigner.S3Presigner s3Presigner() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return software.amazon.awssdk.services.s3.presigner.S3Presigner.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(Region.US_EAST_1)
+                .build();
+    }
 }

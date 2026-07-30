@@ -4,6 +4,14 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  ai:
+    openai:
+      api-key: ${GITHUB_TOKEN}
+      base-url: https://models.github.ai/inference
+      chat:
+        options:
+          model: gpt-4o-mini
+
 cloudflare:
   r2:
     endpoint: ${CLOUDFLARE_R2_ENDPOINT}
