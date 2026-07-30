@@ -1,6 +1,8 @@
 package com.hyfbackend.miniproject.user;
 
 import com.hyfbackend.miniproject.service.R2StorageService;
+import com.hyfbackend.miniproject.user.dto.AvatarDeleteResponse;
+import com.hyfbackend.miniproject.user.dto.AvatarResponse;
 import com.hyfbackend.miniproject.user.dto.UserRequest;
 import com.hyfbackend.miniproject.user.dto.UserResponse;
 import lombok.AllArgsConstructor;
@@ -64,5 +66,35 @@ public class UserController {
         }
         userRepository.updateAvatar(user.getId(), fileKey);
         return new UserResponse(user.getId(), user.getUsername(), fileKey);
+    }
+
+    @GetMapping("/avatar")
+    public AvatarResponse getAvatar(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        User user = userRepository.findByUsername(userDetails.getUsername());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
+        }
+        return new AvatarResponse(user.getAvatarUrl());
+    }
+
+    @DeleteMapping("/avatar")
+    public AvatarDeleteResponse deleteAvatar(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        User user = userRepository.findByUsername(userDetails.getUsername());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
+        }
+        if (user.getAvatarUrl() != null) {
+            r2StorageService.deleteFile(user.getAvatarUrl());
+        }
+
+        userRepository.clearAvatar(user.getId());
+
+        return new AvatarDeleteResponse("Avatar deleted successfully");
     }
 }
