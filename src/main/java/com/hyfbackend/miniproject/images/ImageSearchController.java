@@ -23,7 +23,7 @@ public class ImageSearchController {
     public ResponseEntity<List<UserImage>> searchImages(
             @RequestParam("q") String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) { // limit 50 images
+            @RequestParam(defaultValue = "50") int size) { // limit 50 images per page
 
         List<UserImage> results = imageService.searchImages(keyword, page, size);
 
