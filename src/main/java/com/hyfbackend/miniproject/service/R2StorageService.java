@@ -3,8 +3,12 @@ package com.hyfbackend.miniproject.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -39,5 +43,15 @@ public class R2StorageService {
                     .key(fileKey)
                     .build());
         }
+    }
+
+    // proxy for the private R2 storage bucket
+    public ResponseBytes<GetObjectResponse> getFile(String fileKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        return s3Client.getObject(getObjectRequest, ResponseTransformer.toBytes());
     }
 }
