@@ -46,3 +46,4 @@ jobs:
           CLOUDFLARE_R2_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY || 'dummy_key' }}
           CLOUDFLARE_R2_SECRET_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_KEY || 'dummy_secret' }}
           CLOUDFLARE_R2_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_BUCKET_NAME || 'dummy_bucket' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'dummy_gemini_key' }}
