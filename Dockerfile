@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-jdk-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-25 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
