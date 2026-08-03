@@ -54,16 +54,26 @@ public class UserController {
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only image files are allowed");
         }
+
+        User user = userRepository.findByUsername(userDetails.getUsername());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
+        }
+        // delete old avatar from r2 storage
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+            try {
+                r2StorageService.deleteFile(user.getAvatarUrl());
+            } catch (Exception e) {
+            }
+        }
+        // Upload the new file
         String fileKey;
         try {
             fileKey = r2StorageService.uploadFile(file);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload image");
         }
-        User user = userRepository.findByUsername(userDetails.getUsername());
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
-        }
+
         userRepository.updateAvatar(user.getId(), fileKey);
         return new UserResponse(user.getId(), user.getUsername(), fileKey);
     }
@@ -77,7 +87,12 @@ public class UserController {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
         }
-        return new AvatarResponse(user.getAvatarUrl());
+        // Convert raw storage key to presigned URL if present
+        String presignedAvatarUrl = (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty())
+                ? r2StorageService.getPresignedUrl(user.getAvatarUrl())
+                : null;
+
+        return new AvatarResponse(presignedAvatarUrl);
     }
 
     @DeleteMapping("/avatar")

@@ -86,6 +86,34 @@ public class ImageRepository {
                 .orElse(null);
     }
 
+    // Find all images with pagination for the public gallery
+    public List<UserImage> findAll(int limit, int offset) {
+        return jdbcClient
+                .sql("SELECT id, user_id, image_url, uploaded_at, tags FROM user_images ORDER BY uploaded_at DESC LIMIT :limit OFFSET :offset")
+                .param("limit", limit)
+                .param("offset", offset)
+                .query((rs, rowNum) -> {
+                    Map<String, Object> tagsMap = null;
+                    try {
+                        String jsonTags = rs.getString("tags");
+                        if (jsonTags != null) {
+                            tagsMap = objectMapper.readValue(jsonTags, Map.class);
+                        }
+                    } catch (Exception e) {
+                        tagsMap = Map.of();
+                    }
+
+                    return new UserImage(
+                            rs.getString("id"),
+                            rs.getString("user_id"),
+                            rs.getString("image_url"),
+                            rs.getTimestamp("uploaded_at").toLocalDateTime(),
+                            tagsMap
+                    );
+                })
+                .list();
+    }
+
     public void delete(String id) {
         jdbcClient
                 .sql("DELETE FROM user_images WHERE id = :id")

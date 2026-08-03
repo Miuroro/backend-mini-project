@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - SnappyJoy</title>
+    <!-- Google Font: Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #db7093;
+            --primary-hover: #c75c82;
+            --danger: #e11d48;
+            --danger-hover: #be123c;
+            --bg: #fff0f3;
+            --surface: #ffffff;
+            --text: #4a3b4c;
+            --text-light: #8c758f;
+            --border: #fbcfe8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); }
+
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 700; color: var(--primary); text-decoration: none; letter-spacing: 0.5px; }
+
+        .user-nav { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1.25rem; border-radius: 1rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; font-size: 0.875rem; transition: background 0.2s; }
+        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: #ffe4e6; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(219, 112, 147, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        /* Avatar Container Styles */
+        .avatar-wrapper {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            background: #ffe4e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-container:hover::after {
+            content: "Edit";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(219, 112, 147, 0.7);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        main { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+
+        .upload-section {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 2px solid var(--border);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(251, 207, 232, 0.4);
+        }
+
+        .upload-section h3 { margin-bottom: 1rem; color: var(--primary); }
+        .upload-form { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+        .upload-form input[type="file"] {
+            border: 2px dashed var(--border);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            background: #fff;
+        }
+
+        .my-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .image-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(251, 207, 232, 0.4);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #ffe4e6;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .image-card img:hover {
+            opacity: 0.9;
+        }
+
+        .image-info { padding: 0.85rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag {
+            background: #ffe4e6;
+            color: #be185d;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+        }
+
+        .no-results { text-align: center; color: var(--text-light); grid-column: 1 / -1; padding: 2rem; }
+
+        /* Full-screen Lightbox Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(74, 59, 76, 0.85);
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 1rem;
+            object-fit: contain;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+            border: 3px solid #fff;
+        }
+
+        .image-modal .close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">🌸 SnappyJoy Dashboard</a>
+    <div class="user-nav">
+        <div class="avatar-wrapper" onclick="triggerAvatarUpload()" title="Click to edit avatar">
+            <div class="avatar-container">
+                <img id="userAvatarImg" src="" alt="Avatar" style="display: none;">
+                <span id="avatarPlaceholder" style="font-size: 0.75rem; color: var(--primary);">👤</span>
+            </div>
+            <span id="welcomeUser" style="font-weight: 500;"></span>
+        </div>
+        <!-- Hidden file input for handling avatar selection on click -->
+        <input type="file" id="hiddenAvatarInput" accept="image/*" style="display: none;" onchange="uploadAvatarFile(this)">
+        <a href="index.html" class="btn btn-outline">🏠 Home</a>
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main>
+    <div class="upload-section">
+        <h3>Upload New Image ✨</h3>
+        <form class="upload-form" id="uploadForm">
+            <input type="file" id="imageFile" accept="image/*" required>
+            <button type="submit" class="btn btn-primary">Upload & Tag via AI</button>
+        </form>
+    </div>
+
+    <h2 style="color: var(--primary);">My Uploaded Images</h2>
+    <br>
+    <div class="my-images-grid" id="myImagesGrid">
+        <div class="no-results">Loading your images...</div>
+    </div>
+</main>
+
+<!-- Full-screen Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <img id="modalImg" src="" alt="Full Size Image">
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        await checkAuth();
+        loadUserImages();
+    });
+
+    async function checkAuth() {
+        try {
+            const res = await fetch("/users/profile");
+            if (!res.ok) {
+                window.location.href = "login.html";
+                return;
+            }
+            const data = await res.json();
+            document.getElementById("welcomeUser").textContent = `Hello, ${data.username}`;
+            loadAvatar();
+        } catch (e) {
+            window.location.href = "login.html";
+        }
+    }
+
+    async function loadAvatar() {
+        try {
+            const res = await fetch("/users/avatar");
+            if (res.ok) {
+                const data = await res.json();
+                const avatarImg = document.getElementById("userAvatarImg");
+                const avatarPlaceholder = document.getElementById("avatarPlaceholder");
+                if (data.avatarUrl) {
+                    avatarImg.src = data.avatarUrl;
+                    avatarImg.style.display = "block";
+                    avatarPlaceholder.style.display = "none";
+                } else {
+                    avatarImg.style.display = "none";
+                    avatarPlaceholder.style.display = "block";
+                }
+            }
+        } catch (e) {
+            console.error("Could not load avatar", e);
+        }
+    }
+
+    function triggerAvatarUpload() {
+        document.getElementById("hiddenAvatarInput").click();
+    }
+
+    async function uploadAvatarFile(input) {
+        if (input.files.length === 0) return;
+
+        const formData = new FormData();
+        formData.append("file", input.files[0]);
+
+        try {
+            const res = await fetch("/users/avatar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                input.value = "";
+                loadAvatar();
+            } else {
+                alert("Failed to update avatar.");
+            }
+        } catch (err) {
+            alert("An error occurred during avatar upload.");
+        }
+    }
+
+    async function loadUserImages() {
+        const grid = document.getElementById("myImagesGrid");
+        try {
+            const res = await fetch("/users/images");
+            if (!res.ok) throw new Error("Failed to load images");
+            const images = await res.json();
+
+            if (images.length === 0) {
+                grid.innerHTML = `<div class="no-results">You haven't uploaded any images yet.</div>`;
+                return;
+            }
+
+            grid.innerHTML = images.map(img => `
+                    <div class="image-card">
+                        <img src="${img.imageUrl}" alt="My Image" onclick="openModal('${img.imageUrl}')">
+                        <div class="image-info">
+                            <div>
+                                <small style="color: var(--text-light); font-size: 0.75rem;">${new Date(img.uploadedAt).toLocaleDateString()}</small>
+                                <div class="tags-list">
+                                    ${renderTags(img.tags)}
+                                </div>
+                            </div>
+                            <button class="btn btn-danger" style="width: 100%; padding: 0.4rem; margin-top: 0.5rem;" onclick="deleteImage('${img.id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join("");
+        } catch (err) {
+            grid.innerHTML = `<div class="no-results">Error loading your images.</div>`;
+        }
+    }
+
+    function renderTags(tagsObj) {
+        if (!tagsObj) return "";
+        let html = "";
+        for (const [category, values] of Object.entries(tagsObj)) {
+            if (Array.isArray(values)) {
+                values.forEach(val => {
+                    html += `<span class="tag">${val}</span>`;
+                });
+            }
+        }
+        return html;
+    }
+
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById("imageFile");
+        if (fileInput.files.length === 0) return;
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const submitBtn = e.target.querySelector("button");
+        submitBtn.textContent = "Uploading & AI Tagging...";
+        submitBtn.disabled = true;
+
+        try {
+            const res = await fetch("/users/images", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                fileInput.value = "";
+                loadUserImages();
+            } else {
+                alert("Failed to upload image.");
+            }
+        } catch (err) {
+            alert("An error occurred during upload.");
+        } finally {
+            submitBtn.textContent = "Upload & Tag via AI";
+            submitBtn.disabled = false;
+        }
+    });
+
+    async function deleteImage(id) {
+        if (!confirm("Are you sure you want to delete this image?")) return;
+
+        try {
+            const res = await fetch(`/users/images/${id}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                loadUserImages();
+            } else {
+                alert("Failed to delete image.");
+            }
+        } catch (err) {
+            alert("Error deleting image.");
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch("/auth/logout", { method: "POST" });
+            window.location.href = "index.html";
+        } catch (e) {
+            window.location.href = "index.html";
+        }
+    }
+
+    function openModal(imageUrl) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        modalImg.src = imageUrl;
+        modal.style.display = "flex";
+    }
+
+    function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+</script>
+</body>
+</html>
