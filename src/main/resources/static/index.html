@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnappyJoy - Image Gallery</title>
+    <!-- Google Font: Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #db7093;
+            --primary-hover: #c75c82;
+            --bg: #fff0f3;
+            --surface: #ffffff;
+            --text: #4a3b4c;
+            --text-light: #8c758f;
+            --border: #fbcfe8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.5; }
+
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 700; color: var(--primary); text-decoration: none; letter-spacing: 0.5px; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .nav-links a.btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(219, 112, 147, 0.3);
+        }
+        .nav-links a.btn-primary:hover { background: var(--primary-hover); }
+        .nav-links a:not(.btn-primary):hover { background: #ffe4e6; }
+
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .search-container input {
+            width: 100%;
+            max-width: 500px;
+            padding: 0.75rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 1.5rem;
+            outline: none;
+            font-size: 1rem;
+            background: var(--surface);
+            color: var(--text);
+        }
+        .search-container input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-container button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(219, 112, 147, 0.3);
+        }
+        .search-container button:hover { background: var(--primary-hover); }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .image-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(251, 207, 232, 0.4);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+        .image-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #ffe4e6;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .image-card img:hover {
+            opacity: 0.9;
+        }
+
+        .image-info { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: #ffe4e6;
+            color: #be185d;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-weight: 500;
+        }
+
+        .no-results { text-align: center; color: var(--text-light); grid-column: 1 / -1; padding: 3rem; }
+
+        /* Full-screen Lightbox Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(74, 59, 76, 0.85);
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 1rem;
+            object-fit: contain;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+            border: 3px solid #fff;
+        }
+
+        .image-modal .close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">🌸 SnappyJoy</a>
+    <div class="nav-links" id="navLinks">
+        <a href="login.html">Login</a>
+        <a href="register.html" class="btn-primary">Register</a>
+    </div>
+</header>
+
+<main>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search sweet memories by tags, objects, colors...">
+        <button onclick="searchImages()">Search</button>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid">
+        <div class="no-results">Loading sweet photos...</div>
+    </div>
+</main>
+
+<!-- Full-screen Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <button class="close-btn" onclick="closeModal()">&times;</button>
+    <img id="modalImg" src="" alt="Full Size Image">
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        checkAuthAndLoad();
+        loadImages("");
+    });
+
+    async function checkAuthAndLoad() {
+        try {
+            const res = await fetch("http://localhost:8081/users/profile");
+            if (res.ok) {
+                const nav = document.getElementById("navLinks");
+                nav.innerHTML = `<a href="user.html" class="btn-primary">My Dashboard</a>`;
+            }
+        } catch (e) {
+
+        }
+    }
+
+    async function loadImages(query) {
+        const grid = document.getElementById("galleryGrid");
+        grid.innerHTML = `<div class="no-results">Loading...</div>`;
+
+        let url = query && query.trim() !== ""
+            ? "http://localhost:8081/images/search?q=" + encodeURIComponent(query) + "&page=0&size=50"
+            : "http://localhost:8081/images?page=0&size=50";
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Failed to fetch images");
+            const images = await response.json();
+
+            if (images.length === 0) {
+                grid.innerHTML = `<div class="no-results">No images found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = images.map(img => `
+                <div class="image-card">
+                    <img src="${img.imageUrl}" alt="User Image" loading="lazy" onclick="openModal('${img.imageUrl}')">
+
+                    <div class="image-info">
+                        <div>
+                            <small style="color: var(--text-light);">Uploaded: ${new Date(img.uploadedAt).toLocaleDateString()}</small>
+                            <div class="tags-list">
+                                ${renderTags(img.tags)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        } catch (err) {
+            grid.innerHTML = `<div class="no-results">Error loading image feed. Try searching a keyword.</div>`;
+        }
+    }
+
+    function renderTags(tagsObj) {
+        if (!tagsObj) return "";
+        let html = "";
+        for (const [category, values] of Object.entries(tagsObj)) {
+            if (Array.isArray(values)) {
+                values.forEach(val => {
+                    html += `<span class="tag">${val}</span>`;
+                });
+            }
+        }
+        return html;
+    }
+
+    function searchImages() {
+        const query = document.getElementById("searchInput").value;
+        loadImages(query);
+    }
+
+    function openModal(imageUrl) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        modalImg.src = imageUrl;
+        modal.style.display = "flex";
+    }
+
+    function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+</script>
+</body>
+</html>

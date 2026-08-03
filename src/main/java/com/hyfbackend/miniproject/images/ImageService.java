@@ -45,6 +45,12 @@ public class ImageService {
         return imageRepository.findByUserId(userId);
     }
 
+    // Public method to get all images with pagination for the public gallary
+    public List<UserImage> getAllImages(int page, int size) {
+        int offset = page * size;
+        return imageRepository.findAll(size, offset);
+    }
+
     public void deleteImage(String imageId, String userId) {
         UserImage image = imageRepository.findById(imageId);
         if (image == null) {

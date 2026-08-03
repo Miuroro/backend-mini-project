@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SnappyJoy</title>
+    <!-- Google Font: Fredoka -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #db7093;
+            --primary-hover: #c75c82;
+            --bg: #fff0f3;
+            --surface: #ffffff;
+            --text: #4a3b4c;
+            --border: #fbcfe8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: var(--surface); padding: 2.5rem; border-radius: 1rem; border: 2px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(251, 207, 232, 0.5); }
+        h2 { margin-bottom: 1.5rem; text-align: center; color: var(--primary); }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; font-weight: 500; }
+        input { width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--border); border-radius: 1rem; outline: none; background: #fff; }
+        input:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 0.75rem; background: var(--primary); color: white; border: none; border-radius: 1rem; font-weight: 500; cursor: pointer; margin-top: 1rem; box-shadow: 0 4px 10px rgba(219, 112, 147, 0.3); }
+        button:hover { background: var(--primary-hover); }
+        .error { color: #e11d48; font-size: 0.875rem; margin-top: 0.5rem; text-align: center; }
+        .footer-link { text-align: center; margin-top: 1.2rem; font-size: 0.875rem; }
+        .footer-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .footer-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Create Account ✨</h2>
+    <form id="registerForm">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit">Register</button>
+        <div class="error" id="errorMsg"></div>
+    </form>
+    <div class="footer-link">
+        Already have an account? <a href="login.html">Login here</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const errorMsg = document.getElementById("errorMsg");
+
+        errorMsg.textContent = "";
+
+        try {
+            const response = await fetch("/users/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                alert("Registration successful! Please login.");
+                window.location.href = "login.html";
+            } else {
+                const data = await response.json();
+                errorMsg.textContent = data.message || "Registration failed.";
+            }
+        } catch (err) {
+            errorMsg.textContent = "An error occurred. Please try again.";
+        }
+    });
+</script>
+</body>
+</html>

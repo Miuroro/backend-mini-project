@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -57,8 +58,21 @@ public class ImageController {
         User user = userRepository.findByUsername(userDetails.getUsername());
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User profile not found");
+
         }
-        return imageService.getImagesForUser(user.getId());
+        List<UserImage> results = imageService.getImagesForUser(user.getId());
+
+        // Convert raw storage keys into temporary viewable presigned URLs
+        return results.stream().map(img -> {
+            String presignedUrl = r2StorageService.getPresignedUrl(img.getImageUrl());
+            return new UserImage(
+                    img.getId(),
+                    img.getUserId(),
+                    presignedUrl,
+                    img.getUploadedAt(),
+                    img.getTags()
+            ); //added
+        }).collect(Collectors.toList());
     }
 
     @DeleteMapping("/images/{id}")
