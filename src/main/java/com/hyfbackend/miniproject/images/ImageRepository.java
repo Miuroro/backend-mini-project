@@ -63,7 +63,25 @@ public class ImageRepository {
         return jdbcClient
                 .sql("SELECT id, user_id, image_url, uploaded_at, tags FROM user_images WHERE id = :id")
                 .param("id", id)
-                .query(UserImage.class)
+                .query((rs, rowNum) -> {
+                    Map<String, Object> tagsMap = null;
+                    try {
+                        String jsonTags = rs.getString("tags");
+                        if (jsonTags != null) {
+                            tagsMap = objectMapper.readValue(jsonTags, Map.class);
+                        }
+                    } catch (Exception e) {
+                        tagsMap = Map.of();
+                    }
+
+                    return new UserImage(
+                            rs.getString("id"),
+                            rs.getString("user_id"),
+                            rs.getString("image_url"),
+                            rs.getTimestamp("uploaded_at").toLocalDateTime(),
+                            tagsMap
+                    );
+                })
                 .optional()
                 .orElse(null);
     }

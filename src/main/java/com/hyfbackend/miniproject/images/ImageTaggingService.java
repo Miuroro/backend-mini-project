@@ -17,13 +17,13 @@ public class ImageTaggingService {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${github.models.api-key:${GITHUB_TOKEN:}}")
-    private String githubToken;
+    @Value ("${gemini.api-key}")
+    private String geminiApiKey;
 
     public ImageTaggingService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.restClient = RestClient.builder()
-                .baseUrl("https://models.github.ai/inference")
+                .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent")
                 .build();
     }
 
@@ -48,35 +48,32 @@ public class ImageTaggingService {
                 """;
 
             Map<String, Object> requestBody = Map.of(
-                    "model", "openai/gpt-4o-mini",
-                    "messages", List.of(
-                            Map.of(
-                                    "role", "user",
-                                    "content", List.of(
-                                            Map.of("type", "text", "text", promptText),
-                                            Map.of("type", "image_url", "image_url", Map.of("url", dataUri))
-                                    )
-                            )
-                    ),
-                    "temperature", 0.3
+                    "contents", List.of(
+                            Map.of("parts", List.of(
+                                    Map.of("text", promptText),
+                                    Map.of("inline_data", Map.of(
+                                            "mime_type", mimeType,
+                                            "data", base64Image
+                                    ))
+                            ))
+                    )
             );
 
             Map apiResponse = restClient.post()
-                    .uri("/chat/completions")
-                    .header("Authorization", "Bearer " + githubToken)
-                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .uri("?key=" + geminiApiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(requestBody)
                     .retrieve()
                     .body(Map.class);
 
-            if (apiResponse == null || !apiResponse.containsKey("choices")) {
+            if (apiResponse == null || !apiResponse.containsKey("candidates")) { // to check console log
                 return fallbackTags();
             }
 
-            List<Map> choices = (List<Map>) apiResponse.get("choices");
-            Map message = (Map) choices.get(0).get("message");
-            String rawJsonContent = ((String) message.get("content")).trim();
+            List<Map> candidates = (List<Map>) apiResponse.get("candidates");
+            Map content = (Map) candidates.get(0).get("content");
+            List<Map> parts = (List<Map>) content.get("parts");
+            String rawJsonContent = ((String) parts.get(0).get("text")).trim();
 
             if (rawJsonContent.startsWith("```json")) {
                 rawJsonContent = rawJsonContent.replaceAll("^```json\\s*", "").replaceAll("\\s*```$", "");
@@ -87,6 +84,7 @@ public class ImageTaggingService {
             return objectMapper.readValue(rawJsonContent, Map.class);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return fallbackTags();
         }
     }
