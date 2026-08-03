@@ -5,11 +5,6 @@ spring:
   profiles:
     active: dev
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/MINIPROJECT
-    username: hyfuser
-    password: ${DB_PASSWORD}
-
   session:
     store-type: none
     

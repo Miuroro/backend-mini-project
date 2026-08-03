@@ -1,9 +1,14 @@
 spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MINIPROJECT
+    username: hyfuser
+    password: ${DB_PASSWORD}
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
 
   gemini:
       api-key: ${GEMINI_API_KEY}
