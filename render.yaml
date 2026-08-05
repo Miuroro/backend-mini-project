@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: snappyjoy-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: docker
+      - key: DB_PASSWORD
+        sync: false 
+      - key: CLOUDFLARE_R2_ACCESS_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_SECRET_KEY
+        sync: false
