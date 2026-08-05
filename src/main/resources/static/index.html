@@ -212,7 +212,7 @@
 
     async function checkAuthAndLoad() {
         try {
-            const res = await fetch("http://localhost:8081/users/profile");
+            const res = await fetch("/users/profile");
             if (res.ok) {
                 const nav = document.getElementById("navLinks");
                 nav.innerHTML = `<a href="user.html" class="btn-primary">My Dashboard</a>`;
@@ -227,8 +227,8 @@
         grid.innerHTML = `<div class="no-results">Loading...</div>`;
 
         let url = query && query.trim() !== ""
-            ? "http://localhost:8081/images/search?q=" + encodeURIComponent(query) + "&page=0&size=50"
-            : "http://localhost:8081/images?page=0&size=50";
+            ? "/images/search?q=" + encodeURIComponent(query) + "&page=0&size=50"
+            : "/images?page=0&size=50";
 
         try {
             const response = await fetch(url);
