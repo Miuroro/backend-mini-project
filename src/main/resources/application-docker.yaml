@@ -5,3 +5,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   session:
     store-type: jdbc
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
