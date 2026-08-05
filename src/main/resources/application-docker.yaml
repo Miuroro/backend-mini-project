@@ -1,5 +1,7 @@
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  session:
+    store-type: jdbc
