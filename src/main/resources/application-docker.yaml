@@ -1,5 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://postgres:5432/MINIPROJECT
-    username: hyfuser
-    password: ${DB_PASSWORD}
